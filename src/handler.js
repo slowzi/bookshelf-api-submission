@@ -2,9 +2,11 @@ const { nanoid } = require("nanoid");
 const nodemon = require("nodemon");
 const books = require("./books");
 
+// Handler API for save book
 const addBook = (request, h) => {
     const {name, year, author, summary, publisher, pageCount, readPage, reading} = request.payload;
 
+    // check client not declare the name in request body
     if (name === undefined) {
         const response = h.response({
             status: 'fail',
@@ -14,6 +16,7 @@ const addBook = (request, h) => {
         return response;
     }
 
+    // check if page read more than page count
     if (readPage > pageCount) {
         const response = h.response({
             status: 'fail',
@@ -23,6 +26,7 @@ const addBook = (request, h) => {
         return response;
     }
 
+    // generate random id using nanoid
     const id = nanoid(16);
     const finished = pageCount === readPage;
     const insertedAt = new Date().toISOString();
@@ -32,11 +36,13 @@ const addBook = (request, h) => {
         id, name, year, author, summary, publisher, pageCount, readPage, finished, reading, insertedAt, updatedAt
     };
 
+    // push book to new array
     books.push(newBook);
+    
+    // check if new book was pushed
     const isSuccess = books.filter((book) => book.id === id).length > 0;
 
-    
-
+    // Condition if book was success inputed
     if (isSuccess) {
         const response = h.response({
             status: 'success',
@@ -49,6 +55,7 @@ const addBook = (request, h) => {
         return response;
     }
 
+    // Generic condition if fail add new book
     const response = h.response({
         status: 'fail',
         message: 'Buku gagal ditambahkan',
